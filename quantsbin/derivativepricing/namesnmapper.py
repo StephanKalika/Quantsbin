@@ -15,6 +15,21 @@ class AssetClass(Enum):
 
 class DerivativeType(Enum):
     VANILLA_OPTION = 'Vanilla Option'
+    BARRIER = 'Barriers'
+
+
+class DigitalPayoffType:
+    CASH = 'cash'
+    UNDL = 'underlying'
+    BULL = 'bullish'
+    BEAR = 'bearish'
+
+
+class BarrierType(Enum):
+    UP = 'up'
+    DOWN = 'down'
+    IN = 'in'
+    OUT = 'out'
 
 
 class PricingModel(Enum):
@@ -50,6 +65,7 @@ class RiskParameter(Enum):
 class VanillaOptionType(Enum):
     CALL = 'Call'
     PUT = 'Put'
+    DIGITAL = 'Digital'
 
 
 class ExpiryType(Enum):
@@ -71,18 +87,26 @@ class DivType(Enum):
 
 
 OBJECT_MODEL = {
-    UdlType.STOCK.value: {ExpiryType.EUROPEAN.value: [PricingModel.BLACKSCHOLESMERTON.value, PricingModel.MC_GBM.value
+    UdlType.STOCK.value:
+        {DerivativeType.VANILLA_OPTION.value: {ExpiryType.EUROPEAN.value: [PricingModel.BLACKSCHOLESMERTON.value, PricingModel.MC_GBM.value
                           , PricingModel.BINOMIAL.value],
                           ExpiryType.AMERICAN.value: [PricingModel.MC_GBM.value, PricingModel.BINOMIAL.value]}
-    , UdlType.FUTURES.value: {ExpiryType.EUROPEAN.value: [PricingModel.BLACK76.value, PricingModel.MC_GBM.value
+         }
+    , UdlType.FUTURES.value:
+        {DerivativeType.VANILLA_OPTION.value: {ExpiryType.EUROPEAN.value: [PricingModel.BLACK76.value, PricingModel.MC_GBM.value
                               , PricingModel.BINOMIAL.value],
                               ExpiryType.AMERICAN.value:  [PricingModel.MC_GBM.value, PricingModel.BINOMIAL.value]}
-    , UdlType.FX.value:  {ExpiryType.EUROPEAN.value: [PricingModel.GK.value, PricingModel.MC_GBM.value
+         }
+    , UdlType.FX.value:
+        {DerivativeType.VANILLA_OPTION.value: {ExpiryType.EUROPEAN.value: [PricingModel.GK.value, PricingModel.MC_GBM.value
                           , PricingModel.BINOMIAL.value],
                           ExpiryType.AMERICAN.value:  [PricingModel.MC_GBM.value, PricingModel.BINOMIAL.value]}
-    , UdlType.COMMODITY.value: {ExpiryType.EUROPEAN.value: [PricingModel.GK.value, PricingModel.MC_GBM.value
+         }
+    , UdlType.COMMODITY.value:
+        {DerivativeType.VANILLA_OPTION.value: {ExpiryType.EUROPEAN.value: [PricingModel.GK.value, PricingModel.MC_GBM.value
                                 , PricingModel.BINOMIAL.value],
                                 ExpiryType.AMERICAN.value: [PricingModel.MC_GBM.value, PricingModel.BINOMIAL.value]}
+         }
     }
 
 DEFAULT_MODEL = {

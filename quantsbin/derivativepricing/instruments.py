@@ -37,10 +37,10 @@ class Instrument(metaclass=ABCMeta):
         return PricingEngine(self, **kwargs)
 
     def list_models(self):
-        return ", ".join(OBJECT_MODEL[self.undl][self.expiry_type])
+        return ", ".join(OBJECT_MODEL[self.undl][self.derivative_type][self.expiry_type])
 
 
-class VanillaOption(Instrument):
+class Option(Instrument):
     """
     Parent class for all Vanilla options on different underlying.
 
@@ -62,10 +62,11 @@ class VanillaOption(Instrument):
 
     @property
     def _option_type_flag(self):
-        if self.option_type == VanillaOptionType.CALL.value:
-            return 1
-        else:
-            return -1
+        _temp_option_flag_dict = {VanillaOptionType.CALL.value: 1
+                                  , VanillaOptionType.PUT.value: -1
+                                  , VanillaOptionType.DIGITAL.value: 0
+                                  }
+        return _temp_option_flag_dict[self.option_type]
 
     def payoff(self, spot0=None):
         """
@@ -77,10 +78,13 @@ class VanillaOption(Instrument):
          Args required:
              spot0: Value of underlying e.g. 110
         """
-        return max(self._option_type_flag * (spot0 - self.strike), 0.0)
+        if self._option_type_flag:
+            return max(self._option_type_flag * (spot0 - self.strike), 0.0)
+        else:
+            return
 
 
-class EqOption(VanillaOption):
+class EqOption(Option):
     """
     Defines object for vanilla options on equity with both European and American expiry type.
 
@@ -93,7 +97,7 @@ class EqOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=DerivativeType.VANILLA_OPTION.value
                  ):
         super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
         self.undl = UdlType.STOCK.value
@@ -131,7 +135,7 @@ class EqOption(VanillaOption):
                               div_list=div_list, volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class FutOption(VanillaOption):
+class FutOption(Option):
     """
     Defines object for vanilla options on futures with both European and American expiry type.
 
@@ -143,7 +147,7 @@ class FutOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=DerivativeType.VANILLA_OPTION.value
                  ):
         super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
         self.undl = UdlType.FUTURES.value
@@ -163,13 +167,13 @@ class FutOption(VanillaOption):
                                   (Date in string format "YYYYMMDD") e.g. 10 Dec 2018 as "20181210".
                 Model specific arguments:
                     MonteCarlo
-                        no_of_path = (Integer). Number of paths to be generated for simulation e.g. 10000
-                        no_of_steps = (Integer). Number of steps(nodes) for the premium calculation e.g. 100
+                        no_of_path: (Integer). Number of paths to be generated for simulation e.g. 10000
+                        no_of_steps: (Integer). Number of steps(nodes) for the premium calculation e.g. 100
                         seed = (Integer). Used for seeding
-                        antithetic = (Boolean). A variance reduction process in Montecarlo Simulation.
+                        antithetic: (Boolean). A variance reduction process in Montecarlo Simulation.
                                      Default False
                     Binomial
-                        no_of_steps = (Integer). Number of steps (nodes) for the premium calculation.
+                        no_of_steps: (Integer). Number of steps (nodes) for the premium calculation.
                                        Maximum value accepted is 100. This limit will be increased
                                        in future release.
         """
@@ -177,7 +181,7 @@ class FutOption(VanillaOption):
                               volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class FXOption(VanillaOption):
+class FXOption(Option):
     """
     Defines object for vanilla options on fx rates with both European and American expiry type.
 
@@ -189,7 +193,7 @@ class FXOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=DerivativeType.VANILLA_OPTION.value
                  ):
         super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
         self.undl = UdlType.FX.value
@@ -227,7 +231,7 @@ class FXOption(VanillaOption):
                               volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class ComOption(VanillaOption):
+class ComOption(Option):
     """
     Defines object for vanilla options on commodities with both European and American expiry type.
 
@@ -238,7 +242,7 @@ class ComOption(VanillaOption):
             expiry_date: (Date in string format "YYYYMMDD") e.g. 10 Dec 2018 as "20181210".
     """
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=DerivativeType.VANILLA_OPTION.value
                  ):
         super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
         self.undl = UdlType.COMMODITY.value

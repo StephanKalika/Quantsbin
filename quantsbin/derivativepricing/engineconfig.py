@@ -34,7 +34,8 @@ class PricingEngine:
             Args required:
                 self.model: property defined in engineconfig module under Pricing Engine class
         """
-        assert self._model in OBJECT_MODEL[self.instrument.undl][self.instrument.expiry_type], \
+        assert self._model in \
+            OBJECT_MODEL[self.instrument.undl][self.instrument.derivative_type][self.instrument.expiry_type], \
             "Model not valid please check available models using option.list_models()"
         return True
 
