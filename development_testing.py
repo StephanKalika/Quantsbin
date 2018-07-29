@@ -9,17 +9,17 @@ import quantsbin.derivativepricing.plotting as pt
 
 
 """Defining options"""
-eqOption1 = qbdp.EqOption(option_type='Call', strike=100, expiry_date='20180630', expiry_type='European')
-eqOption2 = qbdp.EqOption(option_type='Call', strike=110, expiry_date='20180630', expiry_type='European')
-
-fxOption1 = qbdp.FXOption(option_type='Call', strike=98, expiry_date='20190630', expiry_type='European')
-fxOption2 = qbdp.FXOption(option_type='Put', strike=95, expiry_date='20180630', expiry_type='American')
-
-futOption1 = qbdp.FutOption(option_type='Put', strike=102, expiry_date='20190630', expiry_type='American')
-futOption2 = qbdp.FutOption(option_type='Call', strike=95, expiry_date='20180630', expiry_type='European')
-
-comOption1 = qbdp.ComOption(option_type='Put', strike=95, expiry_date='20190630', expiry_type='European')
-comOption2 = qbdp.ComOption(option_type='Call', strike=105, expiry_date='20190630', expiry_type='American')
+# eqOption1 = qbdp.EqOption(option_type='Call', strike=100, expiry_date='20180630', expiry_type='European')
+# eqOption2 = qbdp.EqOption(option_type='Call', strike=110, expiry_date='20180630', expiry_type='European')
+#
+# fxOption1 = qbdp.FXOption(option_type='Call', strike=98, expiry_date='20190630', expiry_type='European')
+# fxOption2 = qbdp.FXOption(option_type='Put', strike=95, expiry_date='20180630', expiry_type='American')
+#
+# futOption1 = qbdp.FutOption(option_type='Put', strike=102, expiry_date='20190630', expiry_type='American')
+# futOption2 = qbdp.FutOption(option_type='Call', strike=95, expiry_date='20180630', expiry_type='European')
+#
+# comOption1 = qbdp.ComOption(option_type='Put', strike=95, expiry_date='20190630', expiry_type='European')
+# comOption2 = qbdp.ComOption(option_type='Call', strike=105, expiry_date='20190630', expiry_type='American')
 
 """Creating list of all defined option for consolidate testing"""
 
@@ -43,14 +43,14 @@ comOption2 = qbdp.ComOption(option_type='Call', strike=105, expiry_date='2019063
 # for option in option_list:
 #     print("Models available for pricing {} option are {}".format(option.undl, option.list_models()))
 
-print(eqOption1.engine.__doc__)
-
-
-eqOption1_pricer = eqOption1.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
-                                    rf_rate=.05, pv_div=0.0,
-                                    yield_div=0.0, seed=12)
-
-print(eqOption1_pricer.risk_parameters_num())
+# print(eqOption1.engine.__doc__)
+#
+#
+# eqOption1_pricer = eqOption1.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
+#                                     rf_rate=.05, pv_div=0.0,
+#                                     yield_div=0.0, seed=12)
+#
+# print(eqOption1_pricer.risk_parameters_num())
 
 # payoff_plt = qbdp.Plotting(eqOption1, "payoff", x_axis_range=[0, 200]).line_plot()
 
@@ -58,12 +58,12 @@ print(eqOption1_pricer.risk_parameters_num())
 #
 # delta_plt.show()
 
-OPTION1 = qbdp.OptionStr1Udl([(eqOption1, 1), (eqOption2, -1)])
-OPTION1_Pricer = OPTION1.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
-                                rf_rate=.05, pv_div=0.0, yield_div=0.0, seed=12)
-
-test_plot = qbdp.Plotting(eqOption1_pricer,'pnl', x_axis_range=[50, 150]).line_plot()
-test_plot.show()
+# OPTION1 = qbdp.OptionStr1Udl([(eqOption1, 1), (eqOption2, -1)])
+# OPTION1_Pricer = OPTION1.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
+#                                 rf_rate=.05, pv_div=0.0, yield_div=0.0, seed=12)
+#
+# test_plot = qbdp.Plotting(eqOption1_pricer,'pnl', x_axis_range=[50, 150]).line_plot()
+# test_plot.show()
 # option_payoff = qbdp.Plotting(OPTION1, "payoff", x_axis_range=[0, 200]).line_plot()
 #
 # option_payoff.show()
@@ -71,15 +71,15 @@ test_plot.show()
 # option_val = qbdp.Plotting(OPTION1_Pricer, "valuation", x_axis_range=[0, 200]).line_plot()
 # option_val.show()
 
-abc = qbdp.StdStrategies(name="bull_call", expiry_date="20180630", expiry_type=None, low_strike=100, spread=10)
-abc_engine = abc.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
-                                 rf_rate=.05, pv_div=0.0, yield_div=0.0, seed=12)
+# abc = qbdp.StdStrategies(name="bull_call", expiry_date="20180630", expiry_type=None, low_strike=100, spread=10)
+# abc_engine = abc.engine(model="BSM", spot0=100, pricing_date='20180531', volatility=.25,
+#                                  rf_rate=.05, pv_div=0.0, yield_div=0.0, seed=12)
 
 
 # stg_payoff = qbdp.Plotting(abc, "payoff", x_axis_range=[75, 125]).line_plot()
 
-stg_gamma = qbdp.Plotting(OPTION1_Pricer, "valuation", x_axis_range=[75, 125]).line_plot()
-stg_gamma.show()
+# stg_gamma = qbdp.Plotting(OPTION1_Pricer, "valuation", x_axis_range=[75, 125]).line_plot()
+# stg_gamma.show()
 
 
 """Testing for incorrect model - should raise assertion error"""
@@ -170,7 +170,13 @@ stg_gamma.show()
 # print(eqOption_BSM_test_pricer.valuation())
 # print(eqOption_BSM_test_pricer.risk_parameters_num())
 
+eqOption1 = qbdp.EqOption(option_type='Call', strike=100, expiry_date='20180630',
+                          expiry_type='European',derivative_type='Digital',payoff_type="Cash")
+print(eqOption1.payoff(90))
 
+eqOption_BSM_test_pricer = eqOption1.engine(model="BSM", spot0=100, pricing_date='20170630', volatility=.2,
+                                            rf_rate=.05, div_list=None, yield_div=0.0, seed=12)
+print(eqOption_BSM_test_pricer.valuation())
 
 
 """strategy1_constituents = [(eqOption1, 1), (eqOption2, -1)]

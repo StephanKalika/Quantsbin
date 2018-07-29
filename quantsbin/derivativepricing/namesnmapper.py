@@ -14,7 +14,13 @@ class AssetClass(Enum):
 
 
 class DerivativeType(Enum):
-    VANILLA_OPTION = 'Vanilla Option'
+    VANILLA_OPTION = 'Vanilla'
+    DIGITAL_OPTION = "Digital"
+
+
+class PayoffType(Enum):
+    ASSET = "Asset"
+    CASH = "Cash"
 
 
 class PricingModel(Enum):

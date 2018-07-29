@@ -12,7 +12,7 @@ import numpy as np
 from scipy import optimize
 from scipy.stats import norm
 
-from .namesnmapper import RiskParameter, VanillaOptionType, ExpiryType, UdlType
+from .namesnmapper import RiskParameter, VanillaOptionType, ExpiryType, UdlType, DerivativeType, PayoffType
 from ..montecarlo.namesnmapper import StimulationType, mc_methd_mapper, ProcessNames
 from .helperfn import *
 
@@ -54,6 +54,13 @@ class Model(metaclass=ABCMeta):
             return 1
         elif self.instrument.option_type == VanillaOptionType.PUT.value:
             return -1
+
+    @property
+    def payoff_flag(self):
+        if self.instrument.payoff_type == PayoffType.CASH.value:
+            return 1
+        elif self.instrument.payoff_type == PayoffType.ASSET.value:
+            return 0
 
 
 class BSMFramework(Model):
@@ -113,10 +120,16 @@ class BSMFramework(Model):
             return -1
 
     def valuation(self):
-        return self.option_flag * (
-            self.adj_spot0 * self.adj_discount_factor * norm.cdf(self.option_flag * self.d1)) \
-               - self.option_flag * (self.instrument.strike * self.discount_factor
-                                     * norm.cdf(self.option_flag * self.d2))
+        if self.instrument.derivative_type == DerivativeType.VANILLA_OPTION.value:
+            return self.option_flag * (
+                self.adj_spot0 * self.adj_discount_factor * norm.cdf(self.option_flag * self.d1)) \
+                   - self.option_flag * (self.instrument.strike * self.discount_factor
+                                         * norm.cdf(self.option_flag * self.d2))
+
+        elif self.instrument.derivative_type == DerivativeType.DIGITAL_OPTION.value:
+            return self.payoff_flag * self.discount_factor * norm.cdf(self.option_flag * self.d2) \
+                   + (1-abs(self.payoff_flag)) * self.adj_spot0 * self.adj_discount_factor \
+                                               * norm.cdf(self.option_flag * self.d1)
 
     #   greeks defined
     def delta(self):

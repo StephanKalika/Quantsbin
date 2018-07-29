@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 from .engineconfig import PricingEngine
-from .namesnmapper import VanillaOptionType, ExpiryType, DEFAULT_MODEL, UdlType, OBJECT_MODEL, DerivativeType
+from .namesnmapper import VanillaOptionType, ExpiryType, DEFAULT_MODEL, UdlType, OBJECT_MODEL, DerivativeType, PayoffType
 
 
 class Instrument(metaclass=ABCMeta):
@@ -40,7 +40,7 @@ class Instrument(metaclass=ABCMeta):
         return ", ".join(OBJECT_MODEL[self.undl][self.expiry_type])
 
 
-class VanillaOption(Instrument):
+class Option(Instrument):
     """
     Parent class for all Vanilla options on different underlying.
 
@@ -53,12 +53,13 @@ class VanillaOption(Instrument):
             To check valid models for underlying use .models()
     """
 
-    def __init__(self, option_type, expiry_type, strike, expiry_date, derivative_type):
+    def __init__(self, option_type, expiry_type, strike, expiry_date, derivative_type, payoff_type):
         self.option_type = option_type or VanillaOptionType.CALL.value
         self.expiry_type = expiry_type or ExpiryType.EUROPEAN.value
         self.strike = strike
         self.expiry_date = datetime.strptime(expiry_date, '%Y%m%d')
         self.derivative_type = derivative_type or DerivativeType.VANILLA_OPTION.value
+        self.payoff_type = payoff_type or PayoffType.CASH.value
 
     @property
     def _option_type_flag(self):
@@ -66,6 +67,13 @@ class VanillaOption(Instrument):
             return 1
         else:
             return -1
+
+    @property
+    def _payoff_type_flag(self):
+        if self.payoff_type == PayoffType.CASH.value:
+            return 1
+        else:
+            return 0
 
     def payoff(self, spot0=None):
         """
@@ -80,7 +88,7 @@ class VanillaOption(Instrument):
         return max(self._option_type_flag * (spot0 - self.strike), 0.0)
 
 
-class EqOption(VanillaOption):
+class EqOption(Option):
     """
     Defines object for vanilla options on equity with both European and American expiry type.
 
@@ -93,9 +101,9 @@ class EqOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=None, payoff_type=None
                  ):
-        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
+        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type, payoff_type)
         self.undl = UdlType.STOCK.value
 
     def engine(self, model=None, spot0=None, rf_rate=0, yield_div=0, div_list=None, volatility=None,
@@ -131,7 +139,7 @@ class EqOption(VanillaOption):
                               div_list=div_list, volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class FutOption(VanillaOption):
+class FutOption(Option):
     """
     Defines object for vanilla options on futures with both European and American expiry type.
 
@@ -143,9 +151,9 @@ class FutOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=None, payoff_type=None
                  ):
-        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
+        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type, payoff_type)
         self.undl = UdlType.FUTURES.value
 
     def engine(self, model=None, fwd0=None, rf_rate=0, volatility=None, pricing_date=None, **kwargs):
@@ -177,7 +185,7 @@ class FutOption(VanillaOption):
                               volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class FXOption(VanillaOption):
+class FXOption(Option):
     """
     Defines object for vanilla options on fx rates with both European and American expiry type.
 
@@ -189,9 +197,9 @@ class FXOption(VanillaOption):
     """
 
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=None, payoff_type=None
                  ):
-        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
+        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type, payoff_type)
         self.undl = UdlType.FX.value
 
     def engine(self, model=None, spot0=None, rf_rate_local=0, rf_rate_foreign=0, volatility=None,
@@ -227,7 +235,7 @@ class FXOption(VanillaOption):
                               volatility=volatility, pricing_date=pricing_date, **kwargs)
 
 
-class ComOption(VanillaOption):
+class ComOption(Option):
     """
     Defines object for vanilla options on commodities with both European and American expiry type.
 
@@ -238,9 +246,9 @@ class ComOption(VanillaOption):
             expiry_date: (Date in string format "YYYYMMDD") e.g. 10 Dec 2018 as "20181210".
     """
     def __init__(self, option_type=VanillaOptionType.CALL.value, expiry_type=ExpiryType.EUROPEAN.value,
-                 strike=None, expiry_date=None, derivative_type=None
+                 strike=None, expiry_date=None, derivative_type=None, payoff_type=None
                  ):
-        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type)
+        super().__init__(option_type, expiry_type, strike, expiry_date, derivative_type, payoff_type)
         self.undl = UdlType.COMMODITY.value
 
     def engine(self, model=None, spot0=None, rf_rate=0, cnv_yield=0, cost_yield=0, volatility=None,
